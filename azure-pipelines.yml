@@ -14,9 +14,6 @@ parameters:
   - name: resourceGroupName
     displayName: Resource Group Name
     type: string
-    name: subscribtionName
-    displayName: Subscribtion
-    type: string
 
 steps:
 - task: AzureCLI@2
