@@ -1,0 +1,53 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+# trigger:
+# - main
+
+# pool:
+#   vmImage: ubuntu-latest
+
+# steps:
+# - script: echo Hello, world!
+#   displayName: 'Run a one-line script'
+
+# - script: |
+#     echo Add other tasks to build, test, and deploy your project.
+#     echo See https://aka.ms/yaml
+#   displayName: 'Run a multi-line script'
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - name: resourceGroupName
+    displayName: Resource Group Name
+    type: string
+  - name: location
+    value: 'East US' # Set the default location or change it according to your requirements
+  - name: bicepFile
+    value: 'Resources/deploy-resources.bicep'
+
+steps:
+- task: AzureCLI@2
+  displayName: 'Install Bicep CLI'
+  inputs:
+    azureSubscription: '<Your-Azure-Service-Connection>'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 && chmod +x ./bicep && sudo mv ./bicep /usr/local/bin/bicep'
+
+- task: AzureCLI@2
+  displayName: 'Deploy Bicep Template'
+  inputs:
+    azureSubscription: '<Your-Azure-Service-Connection>'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az group create --name $(resourceGroupName) --location $(location)
+      az deployment group create --resource-group $(resourceGroupName) --template-file $(bicepFile)
